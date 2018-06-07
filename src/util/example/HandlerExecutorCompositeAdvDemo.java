@@ -32,15 +32,16 @@ public class HandlerExecutorCompositeAdvDemo {
   private Consumer<String> consumer;
 	  
 	  
-  private HandlerDispatcher<String> handlerDispatcher;
-
+  private HandlerDispatcher<String> handlerDispatcher;//消息分发器
+  
   void init(){
 	    handlerDispatcher = new HandlerDispatcherImpl<>();
-	    handlerDispatcher.load(this);
+	    handlerDispatcher.load(this); //将注解的Handler加载到分发器
   }
   
   public void onReceivedMessage(String data) {
-	  handlerDispatcher.getHandler(data.charAt(0)+"").process(data);
+	  //第一个char为消息ID
+	  handlerDispatcher.getHandler(data.charAt(0)+"").process(data); 
   }
 
   final Supplier<HandlerDispatcher<String>> supplier = () -> handlerDispatcher;
@@ -88,41 +89,6 @@ public class HandlerExecutorCompositeAdvDemo {
   
   
   
-  
-  
-    //存放消息ID和对应的MessageHandler
-    private Map<Byte, MessageHandler> handlersMap = null;
-    void init() {
-    	//读取注解，将下列定义的HANDLER_1,2,3加载到handlersMap中
-		handlersMap = MessageHandlerUtil.loadMessageHandlers(this);
-	}
-
-    //接收消息的回调函数
-	public void onDataReceived(CommData command) {
-		byte commandID = getCommandId(command);
-		handlersMap.get(commandID).process(command);//调用对应的Handler处理
-	}
-
-	//消息ID为01的Handler
-	@Handle(messageID=0x01)
-	private final MessageHandler HANDLER_1 = (command) -> {	doSomething(); };
-	//消息ID为02的Handler
-	@Handle(messageID=0x02)
-	private final MessageHandler HANDLER_2 = (command) -> { doAnotherThing(); };
-	//消息ID为03的Handler
-	@Handle(messageID=0x03)
-	private final MessageHandler HANDLER_3 = (command) -> { doSomeOtherThing(); };
-	
-	@SubHandle(messageID = ProductionSubId.DIAG_GPS_TURNON)
-	private final MessageHandler GPS_TURNON_HANDLER = (command) -> {
-		// send GPSCOORDINATE, GPSSNRPRN, GPSSATINUSE,
-		// GPSSATINVIEW, GPSSATFIXINFO, GPSPDOP periodically
-		LOGGER.verbose("gpsSenderFuture is " + gpsSenderFuture); //todo:remove
-		if (gpsSenderFuture != null && !gpsSenderFuture.isDone())
-			gpsSenderFuture.cancel(true);
-		gpsSenderFuture = getContext().scheduleAtFixedRate(() -> {sendCoordinate();}, 
-				0, 10, TimeUnit.SECONDS);
-	};
 	
   
 }
