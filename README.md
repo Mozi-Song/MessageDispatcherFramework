@@ -53,4 +53,4 @@ Using this framework:
   final CustomizedHandler B11 = (data) -> { log("B11"); };
 ```
 
-A more detailed text: https://www.cnblogs.com/mozi-song/p/9150442.html (Chinese)
+A more detailed documentation see [here](https://www.cnblogs.com/mozi-song/p/9150442.html) (Chinese).
